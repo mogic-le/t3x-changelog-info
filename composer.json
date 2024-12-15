@@ -1,0 +1,43 @@
+{
+    "name": "mogic/t3x-changelog-info",
+    "type": "typo3-cms-extension",
+    "description": "TYPO3 info module to show parsed CHANGELOG.md content",
+    "authors": [
+        {
+            "name": "Stefan Berger",
+            "role": "Developer",
+            "email": "berger@mogic.com"
+        },
+        {
+            "name": "Christian Weiske",
+            "role": "Developer",
+            "email": "weiske@mogic.com"
+        }
+    ],
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "typo3/cms-core": "^11.5 || ^12.4 || ^13.4",
+        "fluidtypo3/vhs": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mogic\\ChangelogInfo\\": "Classes"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "changelog_info"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "typo3/cms-composer-installers": true,
+            "typo3/class-alias-loader": true
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "which markdown"
+        ]
+    }
+}
