@@ -55,8 +55,10 @@ final readonly class ChangelogInfoController
             $changelogLocation = \TYPO3\CMS\Core\Core\Environment::getProjectPath().'/'.$changelogLocation;
         }
 
-        $this->initView();
-        $this->view->assign('changelogContent',
+        $moduleTemplate = $this->moduleTemplateFactory->create($request);
+
+        #$this->initView();
+        $moduleTemplate->assign('changelogContent',
             $this->linkifyJiraTickets(
                 file_get_contents(
                     $changelogLocation
@@ -64,11 +66,14 @@ final readonly class ChangelogInfoController
                 $linkUrls
             )
         );
-        $this->view->setTemplate('Index');
+
+        return $moduleTemplate->renderResponse('/ShowChangelog/Index');
 
         $response = $this->responseFactory->createResponse();
-        $response->getBody()->write($this->view->render());
-        
+        $response->getBody()->write(
+                $this->view->render()
+        );
+
         return $response;
     }
 
@@ -96,28 +101,5 @@ final readonly class ChangelogInfoController
     
         // Use preg_replace_callback to find and replace JIRA tickets with HTML links
         return preg_replace_callback($jiraPattern, $callback, $text);
-    }
-
-    /**
-     * Initialize view
-     *
-     * @return void
-     */
-    protected function initView()
-    {
-        $this->view = new \TYPO3\CMS\Fluid\View\StandaloneView();
-        $this->view->setFormat('html');
-        $this->view->setTemplateRootPaths(
-            [
-                ExtensionManagementUtility::extPath('changelog_info')
-                . '/Resources/Private/Templates/ShowChangelog/'
-            ]
-        );
-        $this->view->setLayoutRootPaths(
-            [
-                ExtensionManagementUtility::extPath('changelog_info')
-                . '/Resources/Private/Templates/ShowChangelog/Layouts/'
-            ]
-        );
     }
 }
