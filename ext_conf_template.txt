@@ -1,5 +1,5 @@
-# cat=Links; type=string; label=JIRA-replace links: Replace the JIRA links with the given URL. Example: AB=http://ab.atlassians.com,DE=https://de.atlassians.com 
+# cat=Links; type=string; label=JIRA-replace links: Replace the JIRA links with the given URL. Example: AB=https://ab.atlassian.net,DE=https://de.atlassian.net
 linkReplacements =
 
-# cat=Links; type=string; label=CHANGELOG location: Location of the CHANGELOG file. Relative to project path.
-changelogLocation = 
+# cat=Links; type=string; label=CHANGELOG.md location: Location of the CHANGELOG.md file. Relative to project path.
+changelogLocation =
