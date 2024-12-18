@@ -5,14 +5,17 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Http\ResponseFactory;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final readonly class ChangelogInfoController
 {
-    
+
     protected \TYPO3\CMS\Fluid\View\StandaloneView $view;
 
     public function __construct(
@@ -57,24 +60,29 @@ final readonly class ChangelogInfoController
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
 
-        #$this->initView();
-        $moduleTemplate->assign('changelogContent',
-            $this->linkifyJiraTickets(
-                file_get_contents(
-                    $changelogLocation
-                ),
-                $linkUrls
-            )
-        );
+        if (!file_exists($changelogLocation)) {
+            $message = GeneralUtility::makeInstance(
+                FlashMessage::class,
+                'The changelog file does not exist: ' . $changelogLocation,
+                'Error loading Changelog',
+                FlashMessage::ERROR,
+                true
+            );
+            $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+            $messageQueue = $flashMessageService->getMessageQueueByIdentifier();
+            $messageQueue->addMessage($message);
+
+        } else {
+            $moduleTemplate->assign(
+                'changelogContent',
+                $this->linkifyJiraTickets(
+                    file_get_contents($changelogLocation),
+                    $linkUrls
+                )
+            );
+        }
 
         return $moduleTemplate->renderResponse('/ShowChangelog/Index');
-
-        $response = $this->responseFactory->createResponse();
-        $response->getBody()->write(
-                $this->view->render()
-        );
-
-        return $response;
     }
 
     protected function linkifyJiraTickets($text, $jiraUrls) {
