@@ -88,12 +88,12 @@ final readonly class ChangelogInfoController
     protected function linkifyJiraTickets($text, $jiraUrls) {
         // Define the regex pattern to detect JIRA tickets
         $jiraPattern = '/\b([A-Z]+)-(\d+)\b/';
-    
+
         // Function to use for processing each regex match
         $callback = function ($matches) use ($jiraUrls) {
             $projectKey = $matches[1];
             $ticketNumber = $matches[2];
-    
+
             // Check if the project key exists in the jiraUrls array
             if (isset($jiraUrls[$projectKey])) {
                 $jiraUrl = $jiraUrls[$projectKey];
@@ -106,7 +106,7 @@ final readonly class ChangelogInfoController
                 return htmlentities($matches[0]);
             }
         };
-    
+
         // Use preg_replace_callback to find and replace JIRA tickets with HTML links
         return preg_replace_callback($jiraPattern, $callback, $text);
     }
