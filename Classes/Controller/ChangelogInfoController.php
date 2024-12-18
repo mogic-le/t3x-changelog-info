@@ -9,9 +9,10 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Http\ResponseFactory;
+use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
@@ -19,23 +20,20 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-final readonly class ChangelogInfoController
+class ChangelogInfoController
 {
     protected \TYPO3\CMS\Backend\Template\ModuleTemplate $moduleTemplate;
 
     public function __construct(
         protected ModuleTemplateFactory $moduleTemplateFactory,
         protected IconFactory $iconFactory,
-        private UriBuilder $uriBuilder,
-        private ResponseFactory $responseFactory,
-        private readonly ExtensionConfiguration $extensionConfiguration,
-        // ...
+        protected UriBuilder $uriBuilder,
+        protected readonly ExtensionConfiguration $extensionConfiguration,
+        protected readonly Typo3Version $typo3Version,
     ) {}
 
     /**
-     * Show data
-     *
-     * @return string HTML
+     * Render backend module
      */
     public function main(RequestInterface $request): ResponseInterface
     {
@@ -64,8 +62,11 @@ final readonly class ChangelogInfoController
         }
 
         $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $this->loadHeader($request);
+        if ($this->typo3Version->getMajorVersion() >= 12) {
+            $this->loadHeader($request);
+        }
 
+        $changelogHtml = null;
         if (!file_exists($changelogLocation)) {
             $message = GeneralUtility::makeInstance(
                 FlashMessage::class,
@@ -79,16 +80,25 @@ final readonly class ChangelogInfoController
             $messageQueue->addMessage($message);
 
         } else {
-            $this->moduleTemplate->assign(
-                'changelogContent',
-                $this->linkifyJiraTickets(
-                    file_get_contents($changelogLocation),
-                    $linkUrls
-                )
+            $changelogHtml = $this->linkifyJiraTickets(
+                file_get_contents($changelogLocation),
+                $linkUrls
             );
         }
 
-        return $this->moduleTemplate->renderResponse('/ShowChangelog/Index');
+
+        if ($this->typo3Version->getMajorVersion() >= 12) {
+            $this->moduleTemplate->assign('changelogContent', $changelogHtml);
+            return $this->moduleTemplate->renderResponse('/ShowChangelog/Index');
+        }
+
+        $view = new \TYPO3\CMS\Fluid\View\StandaloneView();
+        $view->setTemplateRootPaths(['EXT:changelog_info/Resources/Private/Templates/ShowChangelog']);
+        $view->setPartialRootPaths(['EXT:changelog_info/Resources/Private/Partials/']);
+        $view->setLayoutRootPaths(['EXT:changelog_info/Resources/Private/Layouts/']);
+        $view->setTemplate('Index');
+        $content = $view->renderSection('Content', ['changelogContent' => $changelogHtml]);
+        return new HtmlResponse($content);
     }
 
     protected function linkifyJiraTickets($text, $jiraUrls) {
@@ -126,7 +136,6 @@ final readonly class ChangelogInfoController
         $currentModule = $request->getAttribute('module');
 
         $this->moduleTemplate->makeDocHeaderModuleMenu(['id' => $id]);
-
 
         $lang = $this->getLanguageService();
         $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
