@@ -103,7 +103,7 @@ class ChangelogInfoController
 
     protected function linkifyJiraTickets($text, $jiraUrls) {
         // Define the regex pattern to detect JIRA tickets
-        $jiraPattern = '/\b([A-Z]+)-(\d+)\b/';
+        $jiraPattern = '/\b([A-Z][A-Z0-9]*)-(\d+)\b/';
 
         // Function to use for processing each regex match
         $callback = function ($matches) use ($jiraUrls) {

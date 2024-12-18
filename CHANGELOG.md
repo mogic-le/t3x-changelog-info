@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Show error message when changelog file cannot be found, instead of crashing
+- Support Jira ticket keys with digits before the dash: K23-42
 
 ### Changed
 
