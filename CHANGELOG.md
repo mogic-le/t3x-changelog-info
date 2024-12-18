@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve README
 - Make module available via "Web > Info > Changelog information" instead
   of own main backend module.
+- Change extension icon
 
 ## [1.1.1] - 2024-12-16
 
