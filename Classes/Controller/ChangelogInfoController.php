@@ -1,6 +1,7 @@
 <?php
 namespace Mogic\ChangelogInfo\Controller;
 
+use Michelf\Markdown;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -80,15 +81,16 @@ class ChangelogInfoController
             $messageQueue->addMessage($message);
 
         } else {
-            $changelogHtml = $this->linkifyJiraTickets(
+            $changelogMarkdown = $this->linkifyJiraTickets(
                 file_get_contents($changelogLocation),
                 $linkUrls
             );
+            $changelogHtml = Markdown::defaultTransform($changelogMarkdown);
         }
 
 
         if ($this->typo3Version->getMajorVersion() >= 12) {
-            $this->moduleTemplate->assign('changelogContent', $changelogHtml);
+            $this->moduleTemplate->assign('changelogHtml', $changelogHtml);
             return $this->moduleTemplate->renderResponse('/ShowChangelog/Index');
         }
 
@@ -97,7 +99,7 @@ class ChangelogInfoController
         $view->setPartialRootPaths(['EXT:changelog_info/Resources/Private/Partials/']);
         $view->setLayoutRootPaths(['EXT:changelog_info/Resources/Private/Layouts/']);
         $view->setTemplate('Index');
-        $content = $view->renderSection('Content', ['changelogContent' => $changelogHtml]);
+        $content = $view->renderSection('Content', ['changelogHtml' => $changelogHtml]);
         return new HtmlResponse($content);
     }
 

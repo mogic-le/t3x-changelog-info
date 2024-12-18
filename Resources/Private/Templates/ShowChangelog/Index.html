@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en"
      xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers"
-     xmlns:v="http://typo3.org/ns/FluidTYPO3/Vhs/ViewHelpers"
 >
   <f:layout name="Module" />
 
@@ -15,10 +14,8 @@
     <f:flashMessages queueIdentifier="core.template.flashMessages" />
 
     <div>
-      <f:if condition="{changelogContent}">
-        <v:format.markdown>
-          {changelogContent}
-        </v:format.markdown>
+      <f:if condition="{changelogHtml}">
+        <f:format.raw>{changelogHtml}</f:format.raw>
       </f:if>
     </div>
   </f:section>

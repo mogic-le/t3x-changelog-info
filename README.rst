@@ -23,7 +23,3 @@ Setup
 Requirements
 ------------
 - TYPO3 v11 to v13
-- ``markdown`` shell utility, see `vhs docs`__
-
-
-__ https://docs.typo3.org/p/fluidtypo3/vhs/7.0/en-us/ViewHelpers/Format/Markdown.html
