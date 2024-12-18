@@ -16,18 +16,15 @@
 use T3docs\Examples\Controller\AdminModuleController;
 use T3docs\Examples\Controller\ModuleController;
 
-/**
- * Definitions for modules provided by EXT:examples
- */
 return [
-    'changelog_info' => [
-        'parent' => 'web',
-        'position' => ['after' => 'web_info'],
+    'web_info_changelog_info' => [
+        'parent' => 'web_info',
         'access' => 'user',
         'workspaces' => 'live',
-        'path' => '/module/system/example',
-        'labels' => 'LLL:EXT:changelog_info/Resources/Private/Language/locallang.xlf:backend.showChangelog',
-        'iconIdentifier' => 'changelog_info',
+        'path' => '/module/web/changelog-info',
+        'labels' => [
+            'title' => 'LLL:EXT:changelog_info/Resources/Private/Language/locallang.xlf:backend.showChangelog'
+        ],
         'routes' => [
             '_default' => [
                 'target' => \Mogic\ChangelogInfo\Controller\ChangelogInfoController::class . '::main',

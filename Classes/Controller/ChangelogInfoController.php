@@ -4,19 +4,24 @@ namespace Mogic\ChangelogInfo\Controller;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Http\ResponseFactory;
+use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 final readonly class ChangelogInfoController
 {
-
-    protected \TYPO3\CMS\Fluid\View\StandaloneView $view;
+    protected \TYPO3\CMS\Backend\Template\ModuleTemplate $moduleTemplate;
 
     public function __construct(
         protected ModuleTemplateFactory $moduleTemplateFactory,
@@ -58,7 +63,8 @@ final readonly class ChangelogInfoController
             $changelogLocation = \TYPO3\CMS\Core\Core\Environment::getProjectPath().'/'.$changelogLocation;
         }
 
-        $moduleTemplate = $this->moduleTemplateFactory->create($request);
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($request);
+        $this->loadHeader($request);
 
         if (!file_exists($changelogLocation)) {
             $message = GeneralUtility::makeInstance(
@@ -73,7 +79,7 @@ final readonly class ChangelogInfoController
             $messageQueue->addMessage($message);
 
         } else {
-            $moduleTemplate->assign(
+            $this->moduleTemplate->assign(
                 'changelogContent',
                 $this->linkifyJiraTickets(
                     file_get_contents($changelogLocation),
@@ -82,7 +88,7 @@ final readonly class ChangelogInfoController
             );
         }
 
-        return $moduleTemplate->renderResponse('/ShowChangelog/Index');
+        return $this->moduleTemplate->renderResponse('/ShowChangelog/Index');
     }
 
     protected function linkifyJiraTickets($text, $jiraUrls) {
@@ -109,5 +115,47 @@ final readonly class ChangelogInfoController
 
         // Use preg_replace_callback to find and replace JIRA tickets with HTML links
         return preg_replace_callback($jiraPattern, $callback, $text);
+    }
+
+    protected function loadHeader(RequestInterface $request): void
+    {
+        $id = (int)($request->getQueryParams()['id'] ?? $request->getParsedBody()['id'] ?? 0);
+        $pageinfo = BackendUtility::readPageAccess(
+            $id, $this->getBackendUser()->getPagePermsClause(Permission::PAGE_SHOW)
+        ) ?: [];
+        $currentModule = $request->getAttribute('module');
+
+        $this->moduleTemplate->makeDocHeaderModuleMenu(['id' => $id]);
+
+
+        $lang = $this->getLanguageService();
+        $buttonBar = $this->moduleTemplate->getDocHeaderComponent()->getButtonBar();
+
+        $this->moduleTemplate->setTitle($lang->sL($currentModule->getTitle()));
+
+        // Shortcut
+        $shortcutButton = $buttonBar->makeShortcutButton()
+            ->setRouteIdentifier($currentModule->getIdentifier())
+            ->setDisplayName($lang->sL($currentModule->getTitle()));
+        $buttonBar->addButton($shortcutButton, ButtonBar::BUTTON_POSITION_RIGHT);
+
+        // Reload
+        $reloadButton = $buttonBar->makeLinkButton()
+            ->setHref(
+                (string)$this->uriBuilder->buildUriFromRoute($currentModule->getIdentifier())
+            )
+            ->setTitle($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
+            ->setIcon($this->iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
+        $buttonBar->addButton($reloadButton, ButtonBar::BUTTON_POSITION_RIGHT);
+    }
+
+    protected function getBackendUser(): BackendUserAuthentication
+    {
+        return $GLOBALS['BE_USER'];
+    }
+
+    protected function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }

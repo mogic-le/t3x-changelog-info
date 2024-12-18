@@ -3,8 +3,9 @@
      xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers"
      xmlns:v="http://typo3.org/ns/FluidTYPO3/Vhs/ViewHelpers"
 >
-  <f:layout name="Main" />
-  <f:section name="Main">
+  <f:layout name="Module" />
+
+  <f:section name="Content">
     <style type="text/css">
       a {
         color: #0077FF;
@@ -13,7 +14,7 @@
 
     <f:flashMessages queueIdentifier="core.template.flashMessages" />
 
-    <div style="margin: 20px;">
+    <div>
 
       <f:if condition="{changelogContent}">
         <v:format.markdown>
