@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Changed
+
+- Improve README
+
 ## [1.1.1] - 2024-12-16
 
 ### Fixed
@@ -27,5 +31,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Reder view to module template
-
+- Render view to module template
