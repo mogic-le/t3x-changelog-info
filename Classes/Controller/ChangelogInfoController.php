@@ -16,6 +16,7 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -69,11 +70,17 @@ class ChangelogInfoController
 
         $changelogHtml = null;
         if (!file_exists($changelogLocation)) {
+            if ($this->typo3Version->getMajorVersion() >= 12) {
+                $error = ContextualFeedbackSeverity::ERROR;
+            } else {
+                $error = FlashMessage::ERROR;
+            }
+
             $message = GeneralUtility::makeInstance(
                 FlashMessage::class,
                 'The changelog file does not exist: ' . $changelogLocation,
                 'Error loading Changelog',
-                FlashMessage::ERROR,
+                $error,
                 true
             );
             $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
