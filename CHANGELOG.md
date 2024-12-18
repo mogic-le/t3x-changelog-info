@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+## [1.2.0] - 2024-12-18
+
 ### Fixed
 
 - Show error message when changelog file cannot be found, instead of crashing
@@ -16,8 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Improve README
-- Make module available via "Web > Info > Changelog information" instead
-  of own main backend module.
+- Make module available via "Web > Info > Changelog information" instead  of own main backend module.
 - Change extension icon
 - Use michelf/php-markdown instead of fluidtypo3/vhs for rendering
 
@@ -42,3 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Render view to module template
+
+[unreleased]: https://github.com/mogic-le/t3x-changelog-info/compare/v1.2.0...main
+[1.2.0]: https://github.com/mogic-le/t3x-changelog-info/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/mogic-le/t3x-changelog-info/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/mogic-le/t3x-changelog-info/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/mogic-le/t3x-changelog-info/compare/v1.0.0...v1.0.0
